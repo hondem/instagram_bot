@@ -30,6 +30,7 @@ let config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 	debugLog("Browsing...");
 	await page.goto('http://www.instagram.com/accounts/login/?source=auth_switcher');
 	await page.waitFor(4000);
+	await page.waitFor(3600000);
 
 	debugLog("LOGGING IN WITH:");
 	debugLog("Username: " + config.username);
@@ -46,43 +47,55 @@ let config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 	await page.screenshot({ path:'login.png'} );
 	await page.waitFor(4000);
 
-	debugLog("Fetching hashtags...");
+	while(true){
+		debugLog("Fetching hashtags...");
 
-	const relevants = [];
+		const relevants = [];
 
-	for(let y = 0; y < config.hashtags.length; y++){
-		debugLog("HASHTAG:" + config.hashtags[y]);
-		await page.goto("https://www.instagram.com/explore/tags/" + config.hashtags[y] + '/');
-		
-		for(let __ = 0; __ < 30; __++){
-			await page.evaluate(_ => {
-				window.scrollBy(0, window.innerHeight);
-			});
-			await page.waitFor(1000);
+		for(let y = 0; y < config.hashtags.length; y++){
+			debugLog("HASHTAG:" + config.hashtags[y]);
+			await page.goto("https://www.instagram.com/explore/tags/" + config.hashtags[y] + '/');
+			
+			for(let __ = 0; __ < 10; __++){
+				await page.evaluate(_ => {
+					window.scrollBy(0, window.innerHeight);
+				});
+				await page.waitFor(3000);
+			}
+
+			const hrefs = await page.$$eval('a', as => as.map(a => a.href));
+			
+			for(let i = 0; i < hrefs.length; i++){
+				if(hrefs[i].includes('/p/')) relevants.push(hrefs[i]);
+			}
 		}
 
-		const hrefs = await page.$$eval('a', as => as.map(a => a.href));
-		
-		for(let i = 0; i < hrefs.length; i++){
-			if(hrefs[i].includes('/p/')) relevants.push(hrefs[i]);
+		debugLog('FETCHING DONE!');
+		debugLog('Fetched ' + relevants.length + ' pictures');
+
+		let maxPosts = (relevants.length > 300) ? 300 : relevants.length;
+
+		for(let i = 0; i < maxPosts; i++){
+			debugLog('Liking '+ (i + 1) +'/' + maxPosts);
+
+			try{
+				await page.goto(relevants[i]);
+				let wasLiked = await page.evaluate(() => { return (document.querySelector('.glyphsSpriteHeart__filled__24__red_5') == null) ? false : true });
+				if(!wasLiked){
+					await page.click('.fr66n');
+				} else {
+					debugLog("Skipping this..");
+				}
+			} catch (e) {
+				debugLog('ERROR OCCURED');
+			}
+			await page.screenshot({path: 'logs/log_' + i + '.png'});
 		}
+
+		debugLog("Success!");
+		await page.waitFor(3600000);
 	}
+	
 
-	debugLog('FETCHING DONE!');
-	debugLog('Fetched ' + relevants.length + ' pictures');
-
-	for(let i = 0; i < relevants.length; i++){
-		debugLog('Liking '+ (i + 1) +'/' + (relevants.length - 1));
-		try{
-			await page.goto(relevants[i]);
-			await page.click('.fr66n');
-		} catch (e) {
-			debugLog('ERROR OCCURED');
-		}
-		await page.screenshot({path: 'logs/log_' + i + '.png'});
-	}
-
-	debugLog("Success!");
-
-	await browser.close();
+	//await browser.close();
 })();

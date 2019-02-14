@@ -1,5 +1,14 @@
 {
-	"username": "",
-	"password": "",
-	"hashtags": ["likeforfollow", "l4l", "followforfollow", "likeforlike"]
+	"accounts": [
+		{
+			"username": "username1",
+			"password": "password1",
+			"hashtags": ["likeforlike", "likeforfollow", "blog", "lifestyle"]
+		},
+		{
+			"username": "username2",
+			"password": "password2",
+			"hashtags": ["czechgirl", "likeforlike", "slovakgirl", "likeforfollow", "czechboy", "czech"]
+		}
+	]
 }

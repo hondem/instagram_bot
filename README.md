@@ -10,5 +10,5 @@ npm i
 ```
 4. Run dat script (use debug parameter if you want to see output)!
 ```
-node index.js [--debug]
+node index.js your_config.json
 ```

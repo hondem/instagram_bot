@@ -20,6 +20,11 @@ let config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 	/* Singing user in */
 	await Login(page, { username: config.username, password: config.password });
 
+	/* Fetching hashtags specified in config.json */
+	let posts = await FetchHashtags(page, config);
+	/* Like all posts */
+	await likeAndCommentPosts(page, posts, config.comments, config.commentsPropability);
+	
 	setInterval(async () => {
 		/* Fetching hashtags specified in config.json */
 		let posts = await FetchHashtags(page, config);

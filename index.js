@@ -1,7 +1,7 @@
 /**
  * This script was made by Jan Demel
  * jandemel98@gmail.com
- * The author doesn't take any responsibility with how you use this
+ * The author doesn't take any responsibility. Don't contact me :D
  */
 
 const fs = require('fs');
